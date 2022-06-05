@@ -4,29 +4,25 @@ from bs4 import BeautifulSoup
 import requests
 import os
 
-# for crawlering crypto logos for demo
-page_url = "https://cryptologos.cc"
- 
+# for crawlering apes on opensea
+page_url = "https://opensea.io/assets/ethereum/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d"
+
 options = Options()
 options.add_argument("--disable-notifications")
 
 chrome = webdriver.Chrome('./chromedriver', options=options)
-chrome.get(page_url)
 
-soup = BeautifulSoup(chrome.page_source, 'html.parser')
-cols = soup.find("div", {"class": "flex-grid"}).find_all("div", {"class": "col"})
+if not os.path.exists("apes"):
+  os.mkdir("apes") 
 
-if not os.path.exists("assets"):
-  os.mkdir("assets") 
+for i in range(100):
+  chrome.get(f"{page_url}/{i+1}")
+  soup = BeautifulSoup(chrome.page_source, 'html.parser')
+  img_url = soup.find("img", {"class": "Image--image"})["src"]
+  img = requests.get(img_url)
 
-for col in cols:
-  if (a_tag :=col.find("a")) != None:
-    img_name = a_tag.find("div", {"class": "div-middle-text"}).text.split()[-2][1:-1]
-    chrome.get(page_url + a_tag["href"])
-    soup = BeautifulSoup(chrome.page_source, 'html.parser')
-    img_url = soup.find("div", {"class": "crypto-logo-png-inner"}).find("img")["src"]
-
-    img = requests.get(page_url + img_url)
-    
-    with open("./assets/" + img_name + ".png", "wb") as file:  
+  with open("./apes/" + str(i+1) + ".png", "wb") as file:  
       file.write(img.content)  
+
+
+chrome.close()
