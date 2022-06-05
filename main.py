@@ -22,7 +22,11 @@ if not os.path.exists("assets"):
 for col in cols:
   if (a_tag :=col.find("a")) != None:
     img_name = a_tag.find("div", {"class": "div-middle-text"}).text.split()[-2][1:-1]
-    img = requests.get(page_url + a_tag.find("img")["src"])
+    chrome.get(page_url + a_tag["href"])
+    soup = BeautifulSoup(chrome.page_source, 'html.parser')
+    img_url = soup.find("div", {"class": "crypto-logo-png-inner"}).find("img")["src"]
 
+    img = requests.get(page_url + img_url)
+    
     with open("./assets/" + img_name + ".png", "wb") as file:  
       file.write(img.content)  
